@@ -17,4 +17,11 @@ public interface State<S> {
      * @return the collection of next states.
      */
     public Collection<S> children();
+    
+    /**
+     * Returns {@code true} if this state is a terminal state.
+     * 
+     * @return a boolean indicating whether this state is terminal.
+     */
+    public boolean isTerminal();
 }
