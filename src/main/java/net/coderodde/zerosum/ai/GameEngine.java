@@ -1,4 +1,4 @@
-package net.coderodde.connectfour.ai;
+package net.coderodde.zerosum.ai;
 
 /**
  * This abstract class defines the API for game-playing AI algorithms such as 

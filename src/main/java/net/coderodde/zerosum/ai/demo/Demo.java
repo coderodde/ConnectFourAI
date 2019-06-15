@@ -1,11 +1,11 @@
-package net.coderodde.connectfour.ai.demo;
+package net.coderodde.zerosum.ai.demo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import net.coderodde.connectfour.ai.GameEngine;
-import net.coderodde.connectfour.ai.impl.MinimaxGameEngine;
+import net.coderodde.zerosum.ai.GameEngine;
+import net.coderodde.zerosum.ai.impl.MinimaxGameEngine;
 
 /**
  * This class implements a demonstration of the game-playing algorithms.

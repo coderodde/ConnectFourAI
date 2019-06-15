@@ -1,12 +1,12 @@
-package net.coderodde.connectfour.ai.impl;
+package net.coderodde.zerosum.ai.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.coderodde.connectfour.ai.EvaluatorFunction;
-import net.coderodde.connectfour.ai.GameEngine;
-import net.coderodde.connectfour.ai.State;
+import net.coderodde.zerosum.ai.EvaluatorFunction;
+import net.coderodde.zerosum.ai.GameEngine;
+import net.coderodde.zerosum.ai.State;
 
 /**
  * This class implements the 

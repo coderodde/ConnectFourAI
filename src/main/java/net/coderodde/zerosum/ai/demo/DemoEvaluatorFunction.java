@@ -1,7 +1,7 @@
-package net.coderodde.connectfour.ai.demo;
+package net.coderodde.zerosum.ai.demo;
 
 import java.util.Random;
-import net.coderodde.connectfour.ai.EvaluatorFunction;
+import net.coderodde.zerosum.ai.EvaluatorFunction;
 
 /**
  * This class implements a demonstrative evaluator function.

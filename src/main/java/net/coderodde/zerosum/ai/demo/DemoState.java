@@ -1,9 +1,9 @@
-package net.coderodde.connectfour.ai.demo;
+package net.coderodde.zerosum.ai.demo;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
-import net.coderodde.connectfour.ai.State;
+import net.coderodde.zerosum.ai.State;
 
 /**
  * This class implements a demonstrative game state.

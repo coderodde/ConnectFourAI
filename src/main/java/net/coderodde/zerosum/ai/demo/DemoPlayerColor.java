@@ -1,4 +1,4 @@
-package net.coderodde.connectfour.ai.demo;
+package net.coderodde.zerosum.ai.demo;
 
 /**
  * This enumeration lists the two demonstrative player colors.

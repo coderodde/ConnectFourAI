@@ -1,4 +1,4 @@
-package net.coderodde.connectfour.ai;
+package net.coderodde.zerosum.ai;
 
 /**
  * This interface defines the API for evaluation functions.
