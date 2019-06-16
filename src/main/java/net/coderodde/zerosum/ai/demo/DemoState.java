@@ -13,18 +13,82 @@ import net.coderodde.zerosum.ai.State;
  */
 public final class DemoState implements State<DemoState> {
 
+    /**
+     * Used for generating children nodes.
+     */
     private final Random random;
+    
+    /**
+     * The player this state belongs to.
+     */
+    private final DemoPlayerColor playerColor;
+    
+    /**
+     * The minimum number of children.
+     */
     private final int minimumChildren;
+    
+    /**
+     * The maximum number of children.
+     */
     private final int maximumChildren;
     
+    /**
+     * The value of this state.
+     */
+    private final double value;
+    
+    /**
+     * The highest value producing the victory of the minimizing player.
+     */
+    private final double minimizingPlayerVictoryCutOff;
+    
+    /**
+     * The lowest value producing the victory of the maximizing player.
+     */
+    private final double maximizingPlayerVictoryCutOff;
+    
+    /**
+     * The ID of this node.
+     */
+    private final int stateId;
+    
+    /**
+     * Counts the total number of nodes created and is used for generating the
+     * node IDs.
+     */
+    private static int stateIdCounter = 0;
+    
+    /**
+     * Constructs a new demo node.
+     * @param random the random number generator.
+     * @param playerColor the player color.
+     * @param minimizingPlayerVictoryCutOff the highest value producing the 
+     *                                      victory for the minimizing player.
+     * @param maximizingPlayerVictoryCutOff the lowest value producing the 
+     *                                      victory for the maximizing player.
+     * @param minimumChildren the minimum number of children of this node.
+     * @param maximumChildren the maximum number of children of this node.
+     */
     public DemoState(Random random, 
+                     DemoPlayerColor playerColor,
+                     double minimizingPlayerVictoryCutOff,
+                     double maximizingPlayerVictoryCutOff,
                      int minimumChildren,
                      int maximumChildren) {
         this.random = random;
+        this.playerColor = playerColor;
+        this.minimizingPlayerVictoryCutOff = minimizingPlayerVictoryCutOff;
+        this.maximizingPlayerVictoryCutOff = maximizingPlayerVictoryCutOff;
         this.minimumChildren = minimumChildren;
         this.maximumChildren = maximumChildren;
+        this.value = random.nextGaussian();
+        this.stateId = DemoState.stateIdCounter++;
     }
     
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Collection<DemoState> children() {
         Collection<DemoState> children = new ArrayList<>();
@@ -32,10 +96,18 @@ public final class DemoState implements State<DemoState> {
         int numberOfChildren = minimumChildren + 
                 random.nextInt(maximumChildren - minimumChildren + 1);
         
+        DemoPlayerColor nextPlayerColor =
+                playerColor == DemoPlayerColor.MAXIMIZING_PLAYER ? 
+                DemoPlayerColor.MINIMIZING_PLAYER : 
+                DemoPlayerColor.MAXIMIZING_PLAYER;
+        
         for (int i = 0; i < numberOfChildren; i++) {
             children.add(
                     new DemoState(
                             random,
+                            nextPlayerColor,
+                            minimizingPlayerVictoryCutOff,
+                            maximizingPlayerVictoryCutOff,
                             minimumChildren, 
                             maximumChildren));
         }
@@ -43,7 +115,32 @@ public final class DemoState implements State<DemoState> {
         return children;
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    public String toString() {
+        return "[Node " + stateId + ", value = " + value + "]"; 
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public boolean isTerminal() {
-        return random.nextGaussian() > 1.5;
+        switch (playerColor) {
+            case MAXIMIZING_PLAYER:
+                return value > maximizingPlayerVictoryCutOff;
+                
+            case MINIMIZING_PLAYER:
+                return value <  minimizingPlayerVictoryCutOff;
+                
+            default:
+                throw new IllegalStateException(
+                        "Unknown player color: " + playerColor + ".");
+        }
+    }
+    
+    public double getValue() {
+        return value;
     }
 }

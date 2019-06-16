@@ -43,6 +43,11 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
      */
     private final Map<S, S> parents = new HashMap<>();
     
+    /**
+     * Constructs this minimax game engine.
+     * @param evaluatorFunction the evaluator function.
+     * @param depth the search depth.
+     */
     public MinimaxGameEngine(EvaluatorFunction<S> evaluatorFunction,
                              int depth) {
         super(evaluatorFunction, depth, Integer.MAX_VALUE);
@@ -59,6 +64,8 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
         bestTerminalStateValue = initialPlayer == minimizingPlayer ?
                 Double.POSITIVE_INFINITY :
                 Double.NEGATIVE_INFINITY;
+        
+        makingPlyForMinimizingPlayer = initialPlayer == minimizingPlayer;
         
         makePlyImpl(state,
                     depth,
@@ -81,9 +88,10 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
             s = parents.get(s);
         }
         
-        return statePath.get(statePath.size() - 1);
+        // Return the second upmost state:
+        return statePath.get(statePath.size() - 2);
     }
-    
+     
     private double makePlyImpl(S state,
                                int depth,
                                P minimizingPlayer,

@@ -7,6 +7,6 @@ package net.coderodde.zerosum.ai.demo;
  * @version 1.6 (Jun 15, 2019)
  */
 public enum DemoPlayerColor {
-    WHITE,
-    BLACK,
+    MAXIMIZING_PLAYER,
+    MINIMIZING_PLAYER,
 }
