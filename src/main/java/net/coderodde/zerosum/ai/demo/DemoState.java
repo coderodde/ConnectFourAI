@@ -14,6 +14,11 @@ import net.coderodde.zerosum.ai.State;
 public final class DemoState implements State<DemoState> {
 
     /**
+     * Holds the child nodes of this node.
+     */
+    private Collection<DemoState> children;
+    
+    /**
      * Used for generating children nodes.
      */
     private final Random random;
@@ -91,11 +96,14 @@ public final class DemoState implements State<DemoState> {
      */
     @Override
     public Collection<DemoState> children() {
-        Collection<DemoState> children = new ArrayList<>();
+        if (children != null) {
+            return children;
+        }
         
         int numberOfChildren = minimumChildren + 
                 random.nextInt(maximumChildren - minimumChildren + 1);
         
+        this.children = new ArrayList<>(numberOfChildren);
         DemoPlayerColor nextPlayerColor =
                 playerColor == DemoPlayerColor.MAXIMIZING_PLAYER ? 
                 DemoPlayerColor.MINIMIZING_PLAYER : 
@@ -119,7 +127,9 @@ public final class DemoState implements State<DemoState> {
      * {@inheritDoc}
      */
     public String toString() {
-        return "[Node " + stateId + ", value = " + value + "]"; 
+        return "[Node " + stateId + 
+               ", value = " + value + 
+               ", player = " + playerColor.name() + "]"; 
     }
     
     /**
@@ -140,7 +150,39 @@ public final class DemoState implements State<DemoState> {
         }
     }
     
+    @Override
+    public int hashCode() {
+        return stateId;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        
+        if (o == null) {
+            return false;
+        }
+        
+        DemoState other = (DemoState) o;
+        return stateId == other.stateId;
+    }
+    
+    /**
+     * Returns the value of this state.
+     * 
+     * @return the value of this state.
+     */
     public double getValue() {
         return value;
     }
+    
+    /**
+     * Resets the ID counter.
+     */
+    public void resetCounter() {
+        DemoState.stateIdCounter = 0;
+    }
+    
 }
