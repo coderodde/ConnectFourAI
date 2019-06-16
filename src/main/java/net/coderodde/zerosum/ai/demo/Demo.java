@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import net.coderodde.zerosum.ai.GameEngine;
 import net.coderodde.zerosum.ai.impl.AlphaBetaPruningGameEngine;
+import net.coderodde.zerosum.ai.impl.SortingAlphaBetaPruningGameEngine;
 import net.coderodde.zerosum.ai.impl.MinimaxGameEngine;
 
 /**
@@ -102,22 +103,27 @@ public final class Demo {
         long seed = 1560680113003L;// System.currentTimeMillis();
         Random random1 = new Random(seed);
         Random random2 = new Random(seed);
+        Random random3 = new Random(seed);
         
         DemoEvaluatorFunction ef = new DemoEvaluatorFunction();
         GameEngine<DemoState, DemoPlayerColor> gameEngine1;
         GameEngine<DemoState, DemoPlayerColor> gameEngine2;
+        GameEngine<DemoState, DemoPlayerColor> gameEngine3;
         
         gameEngine1 = new MinimaxGameEngine<>(ef, MAXIMUM_DEPTH);
         gameEngine2 = new AlphaBetaPruningGameEngine<>(ef, MAXIMUM_DEPTH);
+        gameEngine3 = new SortingAlphaBetaPruningGameEngine<>(ef, MAXIMUM_DEPTH);
         
         System.out.println("seed = " + seed);
         
         // Warm up:
         warmup(random1, gameEngine1);
         warmup(random2, gameEngine2);
+        warmup(random3, gameEngine3);
         
         // Benchmark:
         benchmark(random1, gameEngine1);
         benchmark(random2, gameEngine2);
+        benchmark(random3, gameEngine3);
     }
 }

@@ -1,6 +1,7 @@
 package net.coderodde.zerosum.ai;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This interface defines the API for search states.
@@ -16,7 +17,7 @@ public interface State<S> {
      * 
      * @return the collection of next states.
      */
-    public Collection<S> children();
+    public List<S> children();
     
     /**
      * Returns {@code true} if this state is a terminal state.

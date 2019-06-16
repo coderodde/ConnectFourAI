@@ -1,7 +1,7 @@
 package net.coderodde.zerosum.ai.demo;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import net.coderodde.zerosum.ai.State;
 
@@ -16,7 +16,7 @@ public final class DemoState implements State<DemoState> {
     /**
      * Holds the child nodes of this node.
      */
-    private Collection<DemoState> children;
+    private List<DemoState> children;
     
     /**
      * Used for generating children nodes.
@@ -95,7 +95,7 @@ public final class DemoState implements State<DemoState> {
      * {@inheritDoc}
      */
     @Override
-    public Collection<DemoState> children() {
+    public List<DemoState> children() {
         if (children != null) {
             return children;
         }
