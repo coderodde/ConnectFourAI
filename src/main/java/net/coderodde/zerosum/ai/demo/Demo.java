@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import net.coderodde.zerosum.ai.GameEngine;
+import net.coderodde.zerosum.ai.impl.AlphaBetaPruningGameEngine;
 import net.coderodde.zerosum.ai.impl.MinimaxGameEngine;
 
 /**
@@ -16,25 +17,50 @@ public final class Demo {
     
     private static final double MAXIMIZING_PLAYER_VICTORY_CUT_OFF = 1.5;
     private static final double MINIMIZING_PLAYER_VICTORY_CUT_OFF = -1.5;
+    private static final int MAXIMUM_DEPTH = 5;
     private static final int MINIMUM_CHILDREN = 2;
-    private static final int MAXIMUM_CHILDREN = 4;
+    private static final int MAXIMUM_CHILDREN = 5;
     
-    public static void main(String[] args) {
-        long seed = System.currentTimeMillis();
-        Random random = new Random(seed);
-        
-        System.out.println("seed = " + seed);
-        
-        GameEngine<DemoState, DemoPlayerColor> gameEngine = 
-                new MinimaxGameEngine<>(new DemoEvaluatorFunction(), 6);
-        
+    private static void 
+        warmup(Random random,
+               GameEngine<DemoState, DemoPlayerColor> gameEngine) {
+        runGameEngine(random, 
+                      gameEngine,
+                      MINIMIZING_PLAYER_VICTORY_CUT_OFF,
+                      MAXIMIZING_PLAYER_VICTORY_CUT_OFF,
+                      MINIMUM_CHILDREN,
+                      MAXIMUM_CHILDREN,
+                      false);
+    }
+    
+    private static void 
+        benchmark(Random random,
+                  GameEngine<DemoState, DemoPlayerColor> gameEngine) {
+        runGameEngine(random, 
+                      gameEngine,
+                      MINIMIZING_PLAYER_VICTORY_CUT_OFF,
+                      MAXIMIZING_PLAYER_VICTORY_CUT_OFF,
+                      MINIMUM_CHILDREN,
+                      MAXIMUM_CHILDREN,
+                      true);
+    }
+    
+    private static void 
+        runGameEngine(Random random,
+                      GameEngine<DemoState, DemoPlayerColor> gameEngine,
+                      double minimizingPlayerVictoryCutOff,
+                      double maximizingPlayerVictoryCutOff,
+                      int minimumChildren,
+                      int maximumChildren,
+                      boolean print) {
+        DemoState.resetCounter();
         DemoState currentState = 
                 new DemoState(random, 
                               DemoPlayerColor.MAXIMIZING_PLAYER,
-                              MINIMIZING_PLAYER_VICTORY_CUT_OFF,
-                              MAXIMIZING_PLAYER_VICTORY_CUT_OFF,
-                              MINIMUM_CHILDREN,
-                              MAXIMUM_CHILDREN);
+                              minimizingPlayerVictoryCutOff,
+                              maximizingPlayerVictoryCutOff,
+                              minimumChildren,
+                              maximumChildren);
         
         List<DemoState> playedStates = new ArrayList<>();
         DemoPlayerColor demoPlayerColor = DemoPlayerColor.MAXIMIZING_PLAYER;
@@ -46,7 +72,10 @@ public final class Demo {
             currentState = gameEngine.makePly(currentState,
                                               DemoPlayerColor.MINIMIZING_PLAYER, 
                                               DemoPlayerColor.MAXIMIZING_PLAYER, 
-                                              demoPlayerColor);
+                                              demoPlayerColor);      
+            if (currentState == null) {
+                break;
+            }
             
             playedStates.add(currentState);
             
@@ -62,7 +91,33 @@ public final class Demo {
             System.out.println(state);
         }
         
-        System.out.println(playedStates.size() + " plies in " +
-                           (endTime - startTime) + " milliseconds.");
+        if (print) {
+            System.out.println(playedStates.size() + " states in " +
+                               (endTime - startTime) + " milliseconds in " + 
+                                gameEngine.getClass().getSimpleName() + ".");
+        }
+    }
+    
+    public static void main(String[] args) {
+        long seed = 1560680113003L;// System.currentTimeMillis();
+        Random random1 = new Random(seed);
+        Random random2 = new Random(seed);
+        
+        DemoEvaluatorFunction ef = new DemoEvaluatorFunction();
+        GameEngine<DemoState, DemoPlayerColor> gameEngine1;
+        GameEngine<DemoState, DemoPlayerColor> gameEngine2;
+        
+        gameEngine1 = new MinimaxGameEngine<>(ef, MAXIMUM_DEPTH);
+        gameEngine2 = new AlphaBetaPruningGameEngine<>(ef, MAXIMUM_DEPTH);
+        
+        System.out.println("seed = " + seed);
+        
+        // Warm up:
+        warmup(random1, gameEngine1);
+        warmup(random2, gameEngine2);
+        
+        // Benchmark:
+        benchmark(random1, gameEngine1);
+        benchmark(random2, gameEngine2);
     }
 }

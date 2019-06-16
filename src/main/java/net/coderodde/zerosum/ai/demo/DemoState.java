@@ -181,8 +181,7 @@ public final class DemoState implements State<DemoState> {
     /**
      * Resets the ID counter.
      */
-    public void resetCounter() {
+    public static void resetCounter() {
         DemoState.stateIdCounter = 0;
     }
-    
 }

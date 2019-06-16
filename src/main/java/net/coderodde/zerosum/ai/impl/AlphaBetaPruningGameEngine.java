@@ -19,7 +19,7 @@ import net.coderodde.zerosum.ai.State;
  * @author Rodion "rodde" Efremov
  * @version 1.6 (May 26, 2019)
  */
-public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>> 
+public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum<P>> 
         extends GameEngine<S, P> {
 
     /**
@@ -60,8 +60,8 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
      * @param evaluatorFunction the evaluator function.
      * @param depth the search depth.
      */
-    public MinimaxGameEngine(EvaluatorFunction<S> evaluatorFunction,
-                             int depth) {
+    public AlphaBetaPruningGameEngine(EvaluatorFunction<S> evaluatorFunction,
+                                      int depth) {
         super(evaluatorFunction, depth, Integer.MAX_VALUE);
     }
 
@@ -81,6 +81,8 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
         // Do the game tree search:
         makePlyImpl(state,
                     depth,
+                    Double.NEGATIVE_INFINITY, // intial alpha
+                    Double.POSITIVE_INFINITY, // intial beta
                     minimizingPlayer,
                     maximizingPlayer,
                     initialPlayer);
@@ -131,6 +133,8 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
      */
     private double makePlyImpl(S state,
                                int depth,
+                               double alpha,
+                               double beta,
                                P minimizingPlayer,
                                P maximizingPlayer,
                                P currentPlayer) {
@@ -160,11 +164,18 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
                         value, 
                         makePlyImpl(child, 
                                     depth - 1, 
+                                    alpha,
+                                    beta,
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     minimizingPlayer));
                 
                 parents.put(child, state);
+                alpha = Math.max(alpha, value);
+                
+                if (alpha >= beta) {
+                    break;
+                }
             }
             
             return value;
@@ -176,12 +187,19 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
                 value = Math.min(
                         value,
                         makePlyImpl(child, 
-                                    depth - 1, 
+                                    depth - 1,
+                                    alpha,
+                                    beta,
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     maximizingPlayer));
                 
                 parents.put(child, state);
+                beta = Math.min(beta, value);
+                
+                if (alpha >= beta) {
+                    break;
+                }
             }
             
             return value;
