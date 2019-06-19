@@ -27,7 +27,7 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
      * so far, which belongs to the maximizing player moves.
      */
     private S bestTerminalMaximizingState;
-    
+
     /**
      * Stores the value of {@code bestTerminalMaximizingState}.
      */
@@ -38,23 +38,23 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
      * so far, which belongs to the minimizing player moves.
      */
     private S bestTerminalMinimizingState;
-    
+
     /**
      * Stores the value of {@code bestTerminalMinimizingState}.
      */
     private double bestTerminalMinimizingStateValue;
-    
+
     /**
      * Indicates whether we are computing a next ply for the minimizing player 
      * or not. If not, we are computing a next ply for the maximizing player.
      */
     private boolean makingPlyForMinimizingPlayer;
-    
+
     /**
      * Maps each visited state to its parent state.
      */
     private final Map<S, S> parents = new HashMap<>();
-    
+
     /**
      * Constructs this minimax game engine.
      * @param evaluatorFunction the evaluator function.
@@ -76,8 +76,8 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
         // Reset the best known values:
         bestTerminalMaximizingStateValue = Double.NEGATIVE_INFINITY;
         bestTerminalMinimizingStateValue = Double.POSITIVE_INFINITY;
-        makingPlyForMinimizingPlayer = initialPlayer != minimizingPlayer;
-        
+        makingPlyForMinimizingPlayer = initialPlayer == minimizingPlayer;
+
         // Do the game tree search:
         makePlyImpl(state,
                     depth,
@@ -86,14 +86,14 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                     minimizingPlayer,
                     maximizingPlayer,
                     initialPlayer);
-        
+
         // Find the next game state starting from 'state':
         S returnState =
                 inferBestState(
                         initialPlayer == minimizingPlayer ? 
                                 bestTerminalMinimizingState : 
                                 bestTerminalMaximizingState);
-        
+
         // Release the resources:
         parents.clear();
         bestTerminalMaximizingState = null;
@@ -101,26 +101,26 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
         // We are done with a single move:
         return returnState;
     }
-    
+
     private S inferBestState(S bestTerminalState) {
         List<S> statePath = new ArrayList<>();
         S state = bestTerminalState;
-        
+
         while (state != null) {
             statePath.add(state);
             state = parents.get(state);
         }
-        
+
         if (statePath.size() == 1) {
             // The root node is terminal. Return null:
             return null;
         }
-        
+
         // Return the second upmost state:
         Collections.<S>reverse(statePath);
         return statePath.get(1);
     }
-     
+
     /**
      * Performs a single step down the game tree branch.
      * 
@@ -140,8 +140,8 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                                P currentPlayer) {
         if (depth == 0 || state.isTerminal()) {
             double value = evaluatorFunction.evaluate(state);
-            
-            if (!makingPlyForMinimizingPlayer) {
+
+            if (makingPlyForMinimizingPlayer) {
                 if (bestTerminalMinimizingStateValue > value) {
                     bestTerminalMinimizingStateValue = value;
                     bestTerminalMinimizingState = state;
@@ -152,13 +152,13 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                     bestTerminalMaximizingState = state;
                 }
             }
-            
+
             return value;
         }
-        
+
         if (currentPlayer == maximizingPlayer) {
             double value = Double.NEGATIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 value = Math.max(
                         value, 
@@ -169,20 +169,20 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     minimizingPlayer));
-                
+
                 parents.put(child, state);
                 alpha = Math.max(alpha, value);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return value;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
             double value = Double.POSITIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 value = Math.min(
                         value,
@@ -193,15 +193,15 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     maximizingPlayer));
-                
+
                 parents.put(child, state);
                 beta = Math.min(beta, value);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return value;
         }
     }

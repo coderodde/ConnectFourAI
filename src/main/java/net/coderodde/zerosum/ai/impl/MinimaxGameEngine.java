@@ -76,7 +76,7 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
         // Reset the best known values:
         bestTerminalMaximizingStateValue = Double.NEGATIVE_INFINITY;
         bestTerminalMinimizingStateValue = Double.POSITIVE_INFINITY;
-        makingPlyForMinimizingPlayer = initialPlayer != minimizingPlayer;
+        makingPlyForMinimizingPlayer = initialPlayer == minimizingPlayer;
         
         // Do the game tree search:
         makePlyImpl(state,
@@ -137,7 +137,7 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
         if (depth == 0 || state.isTerminal()) {
             double value = evaluatorFunction.evaluate(state);
             
-            if (!makingPlyForMinimizingPlayer) {
+            if (makingPlyForMinimizingPlayer) {
                 if (bestTerminalMinimizingStateValue > value) {
                     bestTerminalMinimizingStateValue = value;
                     bestTerminalMinimizingState = state;
