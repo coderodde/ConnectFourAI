@@ -3,7 +3,7 @@ package net.coderodde.zerosum.ai.demo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import net.coderodde.zerosum.ai.State;
+import net.coderodde.zerosum.ai.AbstractState;
 
 /**
  * This class implements a demonstrative game state.
@@ -11,7 +11,7 @@ import net.coderodde.zerosum.ai.State;
  * @author Rodion "rodde" Efremov 
  * @version 1.6 (Jun 15, 2019)
  */
-public final class DemoState implements State<DemoState> {
+public final class DemoState extends AbstractState<DemoState, DemoPlayerColor> {
 
     /**
      * Holds the child nodes of this node.
@@ -110,14 +110,15 @@ public final class DemoState implements State<DemoState> {
                 DemoPlayerColor.MAXIMIZING_PLAYER;
         
         for (int i = 0; i < numberOfChildren; i++) {
-            children.add(
-                    new DemoState(
-                            random,
-                            nextPlayerColor,
-                            minimizingPlayerVictoryCutOff,
-                            maximizingPlayerVictoryCutOff,
-                            minimumChildren, 
-                            maximumChildren));
+            DemoState child = new DemoState(random,
+                                            nextPlayerColor,
+                                            minimizingPlayerVictoryCutOff,
+                                            maximizingPlayerVictoryCutOff,
+                                            minimumChildren, 
+                                            maximumChildren);
+            
+            child.setDepth(this.getDepth() - 1);
+            children.add(child);
         }
         
         return children;
@@ -183,5 +184,18 @@ public final class DemoState implements State<DemoState> {
      */
     public static void resetCounter() {
         DemoState.stateIdCounter = 0;
+    }
+
+    @Override
+    public DemoPlayerColor checkVictory() {
+        if (value < minimizingPlayerVictoryCutOff) {
+            return DemoPlayerColor.MINIMIZING_PLAYER;
+        }
+        
+        if (value > maximizingPlayerVictoryCutOff) {
+            return DemoPlayerColor.MAXIMIZING_PLAYER;
+        }
+        
+        return null;
     }
 }

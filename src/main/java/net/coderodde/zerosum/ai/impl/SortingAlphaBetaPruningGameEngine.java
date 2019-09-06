@@ -1,14 +1,13 @@
 package net.coderodde.zerosum.ai.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.coderodde.zerosum.ai.EvaluatorFunction;
-import net.coderodde.zerosum.ai.GameEngine;
-import net.coderodde.zerosum.ai.State;
+import net.coderodde.zerosum.ai.AbstractGameEngine;
+import net.coderodde.zerosum.ai.AbstractState;
 
 /**
  * This class implements the 
@@ -21,15 +20,15 @@ import net.coderodde.zerosum.ai.State;
  * @version 1.6 (May 26, 2019)
  */
 public final class SortingAlphaBetaPruningGameEngine
-        <S extends State<S>, P extends Enum<P>> 
-        extends GameEngine<S, P> {
+        <S extends AbstractState<S, P>, P extends Enum<P>> 
+        extends AbstractGameEngine<S, P> {
 
     /**
      * Stores the terminal node or a node at the depth zero with the best value
      * so far, which belongs to the maximizing player moves.
      */
     private S bestTerminalMaximizingState;
-    
+
     /**
      * Stores the value of {@code bestTerminalMaximizingState}.
      */
@@ -40,23 +39,23 @@ public final class SortingAlphaBetaPruningGameEngine
      * so far, which belongs to the minimizing player moves.
      */
     private S bestTerminalMinimizingState;
-    
+
     /**
      * Stores the value of {@code bestTerminalMinimizingState}.
      */
     private double bestTerminalMinimizingStateValue;
-    
+
     /**
      * Indicates whether we are computing a next ply for the minimizing player 
      * or not. If not, we are computing a next ply for the maximizing player.
      */
     private boolean makingPlyForMinimizingPlayer;
-    
+
     /**
      * Maps each visited state to its parent state.
      */
     private final Map<S, S> parents = new HashMap<>();
-    
+
     /**
      * Constructs this minimax game engine.
      * @param evaluatorFunction the evaluator function.
@@ -76,11 +75,12 @@ public final class SortingAlphaBetaPruningGameEngine
                      P minimizingPlayer,
                      P maximizingPlayer,
                      P initialPlayer) {
+        state.setDepth(getDepth());
         // Reset the best known values:
         bestTerminalMaximizingStateValue = Double.NEGATIVE_INFINITY;
         bestTerminalMinimizingStateValue = Double.POSITIVE_INFINITY;
         makingPlyForMinimizingPlayer = initialPlayer != minimizingPlayer;
-        
+
         // Do the game tree search:
         makePlyImpl(state,
                     depth,
@@ -89,14 +89,14 @@ public final class SortingAlphaBetaPruningGameEngine
                     minimizingPlayer,
                     maximizingPlayer,
                     initialPlayer);
-        
+
         // Find the next game state starting from 'state':
         S returnState =
                 inferBestState(
                         initialPlayer == minimizingPlayer ? 
                                 bestTerminalMinimizingState : 
                                 bestTerminalMaximizingState);
-        
+
         // Release the resources:
         parents.clear();
         bestTerminalMaximizingState = null;
@@ -104,26 +104,26 @@ public final class SortingAlphaBetaPruningGameEngine
         // We are done with a single move:
         return returnState;
     }
-    
+
     private S inferBestState(S bestTerminalState) {
         List<S> statePath = new ArrayList<>();
         S state = bestTerminalState;
-        
+
         while (state != null) {
             statePath.add(state);
             state = parents.get(state);
         }
-        
+
         if (statePath.size() == 1) {
             // The root node is terminal. Return null:
             return null;
         }
-        
+
         // Return the second upmost state:
         Collections.<S>reverse(statePath);
         return statePath.get(1);
     }
-     
+
     /**
      * Performs a single step down the game tree branch.
      * 
@@ -141,9 +141,9 @@ public final class SortingAlphaBetaPruningGameEngine
                                P minimizingPlayer,
                                P maximizingPlayer,
                                P currentPlayer) {
-        if (depth == 0 || state.isTerminal()) {
+        if (depth == 0 || state.checkVictory() != null) {
             double value = evaluatorFunction.evaluate(state);
-            
+
             if (!makingPlyForMinimizingPlayer) {
                 if (bestTerminalMinimizingStateValue > value) {
                     bestTerminalMinimizingStateValue = value;
@@ -155,10 +155,10 @@ public final class SortingAlphaBetaPruningGameEngine
                     bestTerminalMaximizingState = state;
                 }
             }
-            
+
             return value;
         }
-        
+
         if (currentPlayer == maximizingPlayer) {
             double value = Double.NEGATIVE_INFINITY;
             List<S> children = state.children();
@@ -167,7 +167,7 @@ public final class SortingAlphaBetaPruningGameEngine
                 double valueB = super.evaluatorFunction.evaluate(b);
                 return Double.compare(valueB, valueA);
             });
-            
+
             for (S child : children) {
                 value = Math.max(
                         value, 
@@ -178,15 +178,15 @@ public final class SortingAlphaBetaPruningGameEngine
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     minimizingPlayer));
-                
+
                 parents.put(child, state);
                 alpha = Math.max(alpha, value);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return value;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
@@ -197,7 +197,7 @@ public final class SortingAlphaBetaPruningGameEngine
                 double valueB = super.evaluatorFunction.evaluate(b);
                 return Double.compare(valueA, valueB);
             });
-            
+
             for (S child : children) {
                 value = Math.min(
                         value,
@@ -208,15 +208,15 @@ public final class SortingAlphaBetaPruningGameEngine
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     maximizingPlayer));
-                
+
                 parents.put(child, state);
                 beta = Math.min(beta, value);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return value;
         }
     }

@@ -9,7 +9,7 @@ package net.coderodde.zerosum.ai;
  * @param <S> the board state type.
  * @param <P> the player color type.
  */
-public abstract class GameEngine<S, P extends Enum<P>> {
+public abstract class AbstractGameEngine<S, P> {
     
     /**
      * The minimum depth of the game tree to traverse.
@@ -45,7 +45,7 @@ public abstract class GameEngine<S, P extends Enum<P>> {
      * @param depth
      * @param parallelDepth 
      */
-    public GameEngine(EvaluatorFunction<S> evaluatorFunction,
+    public AbstractGameEngine(EvaluatorFunction<S> evaluatorFunction,
                       int depth,
                       int parallelDepth) {
         setEvaluatorFunction(evaluatorFunction);

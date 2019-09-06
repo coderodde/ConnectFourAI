@@ -1,13 +1,8 @@
 package net.coderodde.zerosum.ai.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.coderodde.zerosum.ai.EvaluatorFunction;
-import net.coderodde.zerosum.ai.GameEngine;
-import net.coderodde.zerosum.ai.State;
+import net.coderodde.zerosum.ai.AbstractGameEngine;
+import net.coderodde.zerosum.ai.AbstractState;
 
 /**
  * This class implements the 
@@ -19,41 +14,9 @@ import net.coderodde.zerosum.ai.State;
  * @author Rodion "rodde" Efremov
  * @version 1.6 (May 26, 2019)
  */
-public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>> 
-        extends GameEngine<S, P> {
-
-    /**
-     * Stores the terminal node or a node at the depth zero with the best value
-     * so far, which belongs to the maximizing player moves.
-     */
-    private S bestTerminalMaximizingState;
-    
-    /**
-     * Stores the value of {@code bestTerminalMaximizingState}.
-     */
-    private double bestTerminalMaximizingStateValue;
-
-    /**
-     * Stores the terminal node or a node at the depth zero with the best value
-     * so far, which belongs to the minimizing player moves.
-     */
-    private S bestTerminalMinimizingState;
-    
-    /**
-     * Stores the value of {@code bestTerminalMinimizingState}.
-     */
-    private double bestTerminalMinimizingStateValue;
-    
-    /**
-     * Indicates whether we are computing a next ply for the minimizing player 
-     * or not. If not, we are computing a next ply for the maximizing player.
-     */
-    private boolean makingPlyForMinimizingPlayer;
-    
-    /**
-     * Maps each visited state to its parent state.
-     */
-    private final Map<S, S> parents = new HashMap<>();
+public final class MinimaxGameEngine<S extends AbstractState<S, P>,
+                                     P extends Enum<P>> 
+        extends AbstractGameEngine<S, P> {
     
     /**
      * Constructs this minimax game engine.
@@ -73,50 +36,59 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
                      P minimizingPlayer,
                      P maximizingPlayer,
                      P initialPlayer) {
-        // Reset the best known values:
-        bestTerminalMaximizingStateValue = Double.NEGATIVE_INFINITY;
-        bestTerminalMinimizingStateValue = Double.POSITIVE_INFINITY;
-        makingPlyForMinimizingPlayer = initialPlayer == minimizingPlayer;
+        state.setDepth(depth);
         
         // Do the game tree search:
-        makePlyImpl(state,
-                    depth,
-                    minimizingPlayer,
-                    maximizingPlayer,
-                    initialPlayer);
-        
-        // Find the next game state starting from 'state':
-        S returnState =
-                inferBestState(
-                        initialPlayer == minimizingPlayer ? 
-                                bestTerminalMinimizingState : 
-                                bestTerminalMaximizingState);
-        
-        // Release the resources:
-        parents.clear();
-        bestTerminalMaximizingState = null;
-        bestTerminalMinimizingState = null;
-        // We are done with a single move:
-        return returnState;
+        return makePlyImplTopmost(state,
+                                  minimizingPlayer,
+                                  maximizingPlayer,
+                                  initialPlayer);
     }
     
-    private S inferBestState(S bestTerminalState) {
-        List<S> statePath = new ArrayList<>();
-        S state = bestTerminalState;
-        
-        while (state != null) {
-            statePath.add(state);
-            state = parents.get(state);
+    private S makePlyImplTopmost(S state, 
+                                 P minimizingPlayer,
+                                 P maximizingPlayer,
+                                 P currentPlayer) {
+        if (state.getDepth() == 0 || state.checkVictory() != null) {
+            return state;
         }
         
-        if (statePath.size() == 1) {
-            // The root node is terminal. Return null:
-            return null;
-        }
+        S bestState = null;
         
-        // Return the second upmost state:
-        Collections.<S>reverse(statePath);
-        return statePath.get(1);
+        if (currentPlayer == maximizingPlayer) {
+            double tentativeValue = Double.NEGATIVE_INFINITY;
+            
+            for (S childState : state.children()) {
+                double value = makePlyImpl(childState,
+                                           depth - 1,
+                                           minimizingPlayer,
+                                           maximizingPlayer,
+                                           minimizingPlayer);
+                
+                if (value > tentativeValue) {
+                    value = tentativeValue;
+                    bestState = childState;
+                }
+            }
+        } else {
+            // Here, 'initialPlayer == minimizingPlayer'.
+            double tentativeValue = Double.POSITIVE_INFINITY;
+            
+            for (S childState : state.children()) {
+                double value = makePlyImpl(childState,
+                                           depth - 1,
+                                           minimizingPlayer,
+                                           maximizingPlayer,
+                                           minimizingPlayer);
+                
+                if (value < tentativeValue) {
+                    value = tentativeValue;
+                    bestState = childState;
+                }
+            }
+        }
+            
+        return bestState;
     }
      
     /**
@@ -134,57 +106,43 @@ public final class MinimaxGameEngine<S extends State<S>, P extends Enum<P>>
                                P minimizingPlayer,
                                P maximizingPlayer,
                                P currentPlayer) {
-        if (depth == 0 || state.isTerminal()) {
-            double value = evaluatorFunction.evaluate(state);
-            
-            if (makingPlyForMinimizingPlayer) {
-                if (bestTerminalMinimizingStateValue > value) {
-                    bestTerminalMinimizingStateValue = value;
-                    bestTerminalMinimizingState = state;
-                }
-            } else {
-                if (bestTerminalMaximizingStateValue < value) {
-                    bestTerminalMaximizingStateValue = value;
-                    bestTerminalMaximizingState = state;
-                }
-            }
-            
-            return value;
+        if (state.getDepth() == 0 || state.checkVictory() != null) {
+            return evaluatorFunction.evaluate(state);
         }
         
         if (currentPlayer == maximizingPlayer) {
-            double value = Double.NEGATIVE_INFINITY;
+            double tentativeValue = Double.NEGATIVE_INFINITY;
             
             for (S child : state.children()) {
-                value = Math.max(
-                        value, 
-                        makePlyImpl(child, 
-                                    depth - 1, 
-                                    minimizingPlayer, 
-                                    maximizingPlayer, 
-                                    minimizingPlayer));
+                double value = makePlyImpl(child,
+                                           depth - 1,
+                                           minimizingPlayer,
+                                           maximizingPlayer,
+                                           minimizingPlayer);
                 
-                parents.put(child, state);
+                if (value > tentativeValue) {
+                    value = tentativeValue;
+                }
             }
             
-            return value;
+            return tentativeValue;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
-            double value = Double.POSITIVE_INFINITY;
+            double tentativeValue = Double.POSITIVE_INFINITY;
             
             for (S child : state.children()) {
-                value = Math.min(
-                        value,
-                        makePlyImpl(child, 
-                                    depth - 1, 
-                                    minimizingPlayer, 
-                                    maximizingPlayer, 
-                                    maximizingPlayer));
+                double cost = makePlyImpl(child,
+                                          depth - 1,
+                                          minimizingPlayer,
+                                          maximizingPlayer,
+                                          minimizingPlayer);
                 
-                parents.put(child, state);
+                if (cost < tentativeValue) {
+                    cost = tentativeValue;
+                }
             }
             
-            return value;
+            return tentativeValue;
         }
     }
 }

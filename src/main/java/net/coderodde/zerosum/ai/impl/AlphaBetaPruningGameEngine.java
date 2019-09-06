@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.coderodde.zerosum.ai.EvaluatorFunction;
-import net.coderodde.zerosum.ai.GameEngine;
-import net.coderodde.zerosum.ai.State;
+import net.coderodde.zerosum.ai.AbstractGameEngine;
+import net.coderodde.zerosum.ai.AbstractState;
 
 /**
  * This class implements the 
@@ -19,8 +19,8 @@ import net.coderodde.zerosum.ai.State;
  * @author Rodion "rodde" Efremov
  * @version 1.6 (May 26, 2019)
  */
-public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum<P>> 
-        extends GameEngine<S, P> {
+public final class AlphaBetaPruningGameEngine<S extends AbstractState<S, P>, P extends Enum<P>> 
+        extends AbstractGameEngine<S, P> {
 
     /**
      * Stores the terminal node or a node at the depth zero with the best value
@@ -73,11 +73,12 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                      P minimizingPlayer,
                      P maximizingPlayer,
                      P initialPlayer) {
+        state.setDepth(getDepth());
         // Reset the best known values:
         bestTerminalMaximizingStateValue = Double.NEGATIVE_INFINITY;
         bestTerminalMinimizingStateValue = Double.POSITIVE_INFINITY;
         makingPlyForMinimizingPlayer = initialPlayer == minimizingPlayer;
-
+        
         // Do the game tree search:
         makePlyImpl(state,
                     depth,
@@ -138,7 +139,9 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                                P minimizingPlayer,
                                P maximizingPlayer,
                                P currentPlayer) {
-        if (depth == 0 || state.isTerminal()) {
+        P winner = state.checkVictory();
+        
+        if (depth == 0 || winner != null) {
             double value = evaluatorFunction.evaluate(state);
 
             if (makingPlyForMinimizingPlayer) {
@@ -193,7 +196,7 @@ public final class AlphaBetaPruningGameEngine<S extends State<S>, P extends Enum
                                     minimizingPlayer, 
                                     maximizingPlayer, 
                                     maximizingPlayer));
-
+                
                 parents.put(child, state);
                 beta = Math.min(beta, value);
 
