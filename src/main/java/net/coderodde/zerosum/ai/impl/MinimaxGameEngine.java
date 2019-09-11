@@ -65,8 +65,8 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                            maximizingPlayer,
                                            minimizingPlayer);
                 
-                if (value > tentativeValue) {
-                    value = tentativeValue;
+                if (tentativeValue < value) {
+                    tentativeValue = value;
                     bestState = childState;
                 }
             }
@@ -81,8 +81,8 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                            maximizingPlayer,
                                            minimizingPlayer);
                 
-                if (value < tentativeValue) {
-                    value = tentativeValue;
+                if (tentativeValue > value) {
+                    tentativeValue = value;
                     bestState = childState;
                 }
             }

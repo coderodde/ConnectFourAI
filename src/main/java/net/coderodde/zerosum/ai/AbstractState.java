@@ -12,6 +12,9 @@ import java.util.List;
 public abstract class AbstractState<S extends AbstractState<S, P>,
                                     P extends Enum<P>> {
     
+    /**
+     * The depth of this state.
+     */
     private int depth;
     
     /**

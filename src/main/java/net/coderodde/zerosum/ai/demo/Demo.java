@@ -100,6 +100,10 @@ public final class Demo {
     }
     
     public static void main(String[] args) {
+        AbstractGameEngine<DemoState, DemoPlayerColor> engine = 
+                new MinimaxGameEngine<>(new DemoEvaluatorFunction(), 2);
+        System.exit(0);
+        
         long seed = System.currentTimeMillis();
         Random random1 = new Random(seed);
         Random random2 = new Random(seed);

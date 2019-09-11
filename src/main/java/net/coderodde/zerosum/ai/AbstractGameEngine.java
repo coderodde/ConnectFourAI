@@ -9,7 +9,10 @@ package net.coderodde.zerosum.ai;
  * @param <S> the board state type.
  * @param <P> the player color type.
  */
-public abstract class AbstractGameEngine<S, P> {
+public abstract class AbstractGameEngine<
+    S extends AbstractState<S, P>,
+    P extends Enum<P>
+> {
     
     /**
      * The minimum depth of the game tree to traverse.
