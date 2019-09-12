@@ -16,9 +16,9 @@ import net.coderodde.zerosum.ai.impl.MinimaxGameEngine;
  */
 public final class Demo {
     
-    private static final double MAXIMIZING_PLAYER_VICTORY_CUT_OFF = 1.5;
-    private static final double MINIMIZING_PLAYER_VICTORY_CUT_OFF = -1.5;
-    private static final int MAXIMUM_DEPTH = 6;
+    private static final double MAXIMIZING_PLAYER_VICTORY_CUT_OFF = 3.0;
+    private static final double MINIMIZING_PLAYER_VICTORY_CUT_OFF = -3.0;
+    private static final int MAXIMUM_DEPTH = 5;
     private static final int MINIMUM_CHILDREN = 2;
     private static final int MAXIMUM_CHILDREN = 5;
     
@@ -100,9 +100,9 @@ public final class Demo {
     }
     
     public static void main(String[] args) {
-        AbstractGameEngine<DemoState, DemoPlayerColor> engine = 
-                new MinimaxGameEngine<>(new DemoEvaluatorFunction(), 2);
-        System.exit(0);
+//        AbstractGameEngine<DemoState, DemoPlayerColor> engine = 
+//                new MinimaxGameEngine<>(new DemoEvaluatorFunction(), 2);
+//        System.exit(0);
         
         long seed = System.currentTimeMillis();
         Random random1 = new Random(seed);
@@ -121,9 +121,11 @@ public final class Demo {
         System.out.println("seed = " + seed);
         
         // Warm up:
+        System.out.println("Warming up...");
         warmup(random1, gameEngine1);
         warmup(random2, gameEngine2);
         warmup(random3, gameEngine3);
+        System.out.println("Warmed up!");
         
         // Benchmark:
         benchmark(random1, gameEngine1);

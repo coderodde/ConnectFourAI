@@ -49,10 +49,6 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                  P minimizingPlayer,
                                  P maximizingPlayer,
                                  P currentPlayer) {
-        if (state.getDepth() == 0 || state.checkVictory() != null) {
-            return state;
-        }
-        
         S bestState = null;
         
         if (currentPlayer == maximizingPlayer) {
@@ -94,11 +90,12 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
     /**
      * Performs a single step down the game tree branch.
      * 
-     * @param state the starting state.
-     * @param depth the maximum depth of the game tree.
+     * @param state            the starting state.
+     * @param depth            the maximum depth of the game tree.
      * @param minimizingPlayer the minimizing player.
      * @param maximizingPlayer the maximizing player.
-     * @param currentPlayer the current player.
+     * @param currentPlayer    the current player.
+     * 
      * @return the value of the best ply.
      */
     private double makePlyImpl(S state,
@@ -106,7 +103,9 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                P minimizingPlayer,
                                P maximizingPlayer,
                                P currentPlayer) {
-        if (state.getDepth() == 0 || state.checkVictory() != null) {
+        if (state.getDepth() == 0 
+                || state.checkVictory() != null
+                || state.isTerminal()) {
             return evaluatorFunction.evaluate(state);
         }
         
@@ -120,8 +119,8 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                            maximizingPlayer,
                                            minimizingPlayer);
                 
-                if (value > tentativeValue) {
-                    value = tentativeValue;
+                if (tentativeValue < value) {
+                    tentativeValue = value;
                 }
             }
             
@@ -131,15 +130,15 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
             double tentativeValue = Double.POSITIVE_INFINITY;
             
             for (S child : state.children()) {
-                double cost = makePlyImpl(child,
-                                          depth - 1,
-                                          minimizingPlayer,
-                                          maximizingPlayer,
-                                          minimizingPlayer);
+                double value = makePlyImpl(child,
+                                           depth - 1,
+                                           minimizingPlayer,
+                                           maximizingPlayer,
+                                           minimizingPlayer);
                 
-                if (cost < tentativeValue) {
-                    cost = tentativeValue;
-                }
+                if (tentativeValue > value) {
+                    tentativeValue = value;
+                } 
             }
             
             return tentativeValue;
