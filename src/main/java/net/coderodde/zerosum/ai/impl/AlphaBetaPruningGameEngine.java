@@ -38,17 +38,17 @@ extends AbstractGameEngine<S, P> {
                      P maximizingPlayer,
                      P initialPlayer) {
         state.setDepth(depth);
-        
+
         // Do the game tree search with Alpha-beta pruning:
         return makePlyImplTopmost(state,
                                   depth,
-                                  -Double.NEGATIVE_INFINITY,
-                                   Double.POSITIVE_INFINITY,
+                                  Double.NEGATIVE_INFINITY,
+                                  Double.POSITIVE_INFINITY,
                                   minimizingPlayer,
                                   maximizingPlayer,
                                   initialPlayer);
     }
-    
+
     /**
      * Pefrorms the topmost search of a game tree.
      * 
@@ -69,10 +69,10 @@ extends AbstractGameEngine<S, P> {
                                  P maximizingPlayer,
                                  P currentPlayer) {
         S bestState = null;
-        
+
         if (currentPlayer == maximizingPlayer) {
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
+
             for (S childState : state.children()) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
@@ -81,14 +81,14 @@ extends AbstractGameEngine<S, P> {
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                     bestState = childState;
                 }
-                
+
                 alpha = Math.max(alpha, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     return bestState;
                 }
@@ -96,7 +96,7 @@ extends AbstractGameEngine<S, P> {
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
+
             for (S childState : state.children()) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
@@ -105,23 +105,23 @@ extends AbstractGameEngine<S, P> {
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                     bestState = childState;
                 }
-                
+
                 beta = Math.min(beta, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     return bestState;
                 }
             }
         }
-            
+
         return bestState;
     }
-    
+
     /**
      * Performs a single step down the game tree.
      * 
@@ -147,10 +147,10 @@ extends AbstractGameEngine<S, P> {
                 || state.isTerminal()) {
             return evaluatorFunction.evaluate(state);
         }
-        
+
         if (currentPlayer == maximizingPlayer) {
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 double value = makePlyImpl(child,
                                            depth - 1,
@@ -159,23 +159,23 @@ extends AbstractGameEngine<S, P> {
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                 }
-                
+
                 alpha = Math.max(alpha, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return tentativeValue;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 double value = makePlyImpl(child,
                                            depth - 1,
@@ -184,18 +184,18 @@ extends AbstractGameEngine<S, P> {
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                 }
-                
+
                 beta = Math.min(beta, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return tentativeValue;
         }
     }

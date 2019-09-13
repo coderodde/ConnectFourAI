@@ -8,7 +8,7 @@ package net.coderodde.zerosum.ai;
  * @param <S> the state type.
  */
 public interface EvaluatorFunction<S> {
-    
+
     /**
      * Evaluates the given state and returns the result.
      * @param state the state to evaluate.

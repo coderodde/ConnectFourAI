@@ -4,7 +4,6 @@ import java.util.List;
 import net.coderodde.zerosum.ai.EvaluatorFunction;
 import net.coderodde.zerosum.ai.AbstractGameEngine;
 import net.coderodde.zerosum.ai.AbstractState;
-import net.coderodde.zerosum.ai.demo.DemoPlayerColor;
 
 /**
  * This class implements the 
@@ -28,8 +27,9 @@ public final class SortingAlphaBetaPruningGameEngine
      * @param evaluatorFunction the evaluator function.
      * @param depth the search depth.
      */
-    public SortingAlphaBetaPruningGameEngine(EvaluatorFunction<S> evaluatorFunction,
-                                      int depth) {
+    public SortingAlphaBetaPruningGameEngine(
+            EvaluatorFunction<S> evaluatorFunction,
+            int depth) {
         super(evaluatorFunction, depth, Integer.MAX_VALUE);
     }
 
@@ -41,17 +41,17 @@ public final class SortingAlphaBetaPruningGameEngine
                      P maximizingPlayer,
                      P initialPlayer) {
         state.setDepth(depth);
-        
+
         // Do the game tree search with Alpha-beta pruning:
         return makePlyImplTopmost(state,
                                   depth,
-                                  -Double.NEGATIVE_INFINITY,
-                                   Double.POSITIVE_INFINITY,
+                                  Double.NEGATIVE_INFINITY,
+                                  Double.POSITIVE_INFINITY,
                                   minimizingPlayer,
                                   maximizingPlayer,
                                   initialPlayer);
     }
-    
+
     /**
      * Pefrorms the topmost search of a game tree.
      * 
@@ -72,27 +72,18 @@ public final class SortingAlphaBetaPruningGameEngine
                                  P maximizingPlayer,
                                  P currentPlayer) {
         S bestState = null;
-        
         List<S> children = state.children();
-        
-        if (currentPlayer == DemoPlayerColor.MAXIMIZING_PLAYER) {
+
+        if (currentPlayer == maximizingPlayer) {
             children.sort((a, b) -> {
                 double valueOfA = super.evaluatorFunction.evaluate(a);
                 double valueOfB = super.evaluatorFunction.evaluate(b);
                 return Double.compare(valueOfA, valueOfB);
             });
-        } else {
-            children.sort((a, b) -> {
-                double valueOfA = super.evaluatorFunction.evaluate(a);
-                double valueOfB = super.evaluatorFunction.evaluate(b);
-                return Double.compare(valueOfB, valueOfA);
-            });
-        }
-        
-        if (currentPlayer == maximizingPlayer) {
+
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
-            for (S childState : state.children()) {
+
+            for (S childState : children) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
                                            alpha,
@@ -100,23 +91,29 @@ public final class SortingAlphaBetaPruningGameEngine
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                     bestState = childState;
                 }
-                
+
                 alpha = Math.max(alpha, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     return bestState;
                 }
             }
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
+            children.sort((a, b) -> {
+                double valueOfA = super.evaluatorFunction.evaluate(a);
+                double valueOfB = super.evaluatorFunction.evaluate(b);
+                return Double.compare(valueOfB, valueOfA);
+            });
+
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
-            for (S childState : state.children()) {
+
+            for (S childState : children) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
                                            alpha,
@@ -124,23 +121,23 @@ public final class SortingAlphaBetaPruningGameEngine
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                     bestState = childState;
                 }
-                
+
                 beta = Math.min(beta, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     return bestState;
                 }
             }
         }
-            
+
         return bestState;
     }
-    
+
     /**
      * Performs a single step down the game tree.
      * 
@@ -166,11 +163,19 @@ public final class SortingAlphaBetaPruningGameEngine
                 || state.isTerminal()) {
             return evaluatorFunction.evaluate(state);
         }
-        
+
+        List<S> children = state.children();
+
         if (currentPlayer == maximizingPlayer) {
+            children.sort((a, b) -> {
+                double valueOfA = super.evaluatorFunction.evaluate(a);
+                double valueOfB = super.evaluatorFunction.evaluate(b);
+                return Double.compare(valueOfA, valueOfB);
+            });
+
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
-            for (S child : state.children()) {
+
+            for (S child : children) {
                 double value = makePlyImpl(child,
                                            depth - 1,
                                            alpha, 
@@ -178,24 +183,30 @@ public final class SortingAlphaBetaPruningGameEngine
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                 }
-                
+
                 alpha = Math.max(alpha, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return tentativeValue;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
+            children.sort((a, b) -> {
+                double valueOfA = super.evaluatorFunction.evaluate(a);
+                double valueOfB = super.evaluatorFunction.evaluate(b);
+                return Double.compare(valueOfB, valueOfA);
+            });
+
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
-            for (S child : state.children()) {
+
+            for (S child : children) {
                 double value = makePlyImpl(child,
                                            depth - 1,
                                            alpha,
@@ -203,18 +214,18 @@ public final class SortingAlphaBetaPruningGameEngine
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                 }
-                
+
                 beta = Math.min(beta, tentativeValue);
-                
+
                 if (alpha >= beta) {
                     break;
                 }
             }
-            
+
             return tentativeValue;
         }
     }

@@ -13,33 +13,33 @@ public abstract class AbstractGameEngine<
     S extends AbstractState<S, P>,
     P extends Enum<P>
 > {
-    
+
     /**
      * The minimum depth of the game tree to traverse.
      */
     private static final int MINIMUM_DEPTH = 1;
-    
+
     /**
      * The depth, after reaching which, the search spawns isolated tasks for a 
      * thread pool to process.
      */
     private static final int MINIMUM_PARALLEL_DEPTH = 1;
-    
+
     /**
      * The state evaluator function.
      */
     protected EvaluatorFunction<S> evaluatorFunction;
-    
+
     /**
      * The maximum depth of the game tree to construct.
      */
     protected int depth;
-    
+
     /**
      * The depth after which to switch to parallel computation.
      */
     protected int parallelDepth;
-    
+
     /**
      * Constructs this game engine with given parameters. Note that if 
      * {@code parallelDepth > depth}, the entire computation will be run in this
@@ -55,31 +55,31 @@ public abstract class AbstractGameEngine<
         setDepth(depth);
         setParallelDepth(parallelDepth);
     }
-    
+
     public EvaluatorFunction<S> getEvaluatorFunction() {
         return evaluatorFunction;
     }
-    
+
     public int getDepth() {
         return depth;
     }
-    
+
     public int getParallelDepth() {
         return parallelDepth;
     }
-    
+
     public void setEvaluatorFunction(EvaluatorFunction<S> evaluatorFunction) {
         this.evaluatorFunction = evaluatorFunction;
     }
-    
+
     public void setDepth(int depth) {
         this.depth = checkDepth(depth);
     }
-    
+
     public void setParallelDepth(int parallelDepth) {
         this.parallelDepth = checkParallelDepth(parallelDepth);
     }
-    
+
     /**
      * Computes and makes a single move. 
      * @param state the source game state.
@@ -94,7 +94,7 @@ public abstract class AbstractGameEngine<
                               P minimizingPlayer,
                               P maximizingPlayer,
                               P initialPlayer);
-    
+
     /**
      * Validates the depth candidate.
      * @param depthCandidate the depth candidate to validate.
@@ -106,10 +106,10 @@ public abstract class AbstractGameEngine<
                     "The requested depth (" + depthCandidate + ") is too " + 
                     "small. Must be at least " + MINIMUM_DEPTH + ".");
         }
-        
+
         return depthCandidate;
     }
-    
+
     /**
      * Validates the parallel depth candidate.
      * @param parallelDepthCandidate the parallel depth candidate to validate.
@@ -122,7 +122,7 @@ public abstract class AbstractGameEngine<
                     ") is too small. Must be at least " +
                     MINIMUM_PARALLEL_DEPTH + ".");
         }
-        
+
         return parallelDepthCandidate;
     }
 }

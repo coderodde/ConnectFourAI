@@ -17,7 +17,7 @@ import net.coderodde.zerosum.ai.AbstractState;
 public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                                      P extends Enum<P>> 
         extends AbstractGameEngine<S, P> {
-    
+
     /**
      * Constructs this minimax game engine.
      * @param evaluatorFunction the evaluator function.
@@ -37,30 +37,30 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                      P maximizingPlayer,
                      P initialPlayer) {
         state.setDepth(depth);
-        
+
         // Do the game tree search:
         return makePlyImplTopmost(state,
                                   minimizingPlayer,
                                   maximizingPlayer,
                                   initialPlayer);
     }
-    
+
     private S makePlyImplTopmost(S state, 
                                  P minimizingPlayer,
                                  P maximizingPlayer,
                                  P currentPlayer) {
         S bestState = null;
-        
+
         if (currentPlayer == maximizingPlayer) {
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
+
             for (S childState : state.children()) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                     bestState = childState;
@@ -69,24 +69,24 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
+
             for (S childState : state.children()) {
                 double value = makePlyImpl(childState,
                                            depth - 1,
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                     bestState = childState;
                 }
             }
         }
-            
+
         return bestState;
     }
-     
+
     /**
      * Performs a single step down the game tree branch.
      * 
@@ -108,39 +108,39 @@ public final class MinimaxGameEngine<S extends AbstractState<S, P>,
                 || state.isTerminal()) {
             return evaluatorFunction.evaluate(state);
         }
-        
+
         if (currentPlayer == maximizingPlayer) {
             double tentativeValue = Double.NEGATIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 double value = makePlyImpl(child,
                                            depth - 1,
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue < value) {
                     tentativeValue = value;
                 }
             }
-            
+
             return tentativeValue;
         } else {
             // Here, 'initialPlayer == minimizingPlayer'.
             double tentativeValue = Double.POSITIVE_INFINITY;
-            
+
             for (S child : state.children()) {
                 double value = makePlyImpl(child,
                                            depth - 1,
                                            minimizingPlayer,
                                            maximizingPlayer,
                                            minimizingPlayer);
-                
+
                 if (tentativeValue > value) {
                     tentativeValue = value;
                 } 
             }
-            
+
             return tentativeValue;
         }
     }
