@@ -1,6 +1,5 @@
 package net.coderodde.zerosum.ai.demo;
 
-import java.util.Random;
 import net.coderodde.zerosum.ai.EvaluatorFunction;
 
 /**

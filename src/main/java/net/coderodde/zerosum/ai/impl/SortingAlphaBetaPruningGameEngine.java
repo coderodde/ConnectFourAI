@@ -78,7 +78,7 @@ public final class SortingAlphaBetaPruningGameEngine
             children.sort((a, b) -> {
                 double valueOfA = super.evaluatorFunction.evaluate(a);
                 double valueOfB = super.evaluatorFunction.evaluate(b);
-                return Double.compare(valueOfA, valueOfB);
+                return Double.compare(valueOfB, valueOfA);
             });
 
             double tentativeValue = Double.NEGATIVE_INFINITY;
@@ -108,7 +108,7 @@ public final class SortingAlphaBetaPruningGameEngine
             children.sort((a, b) -> {
                 double valueOfA = super.evaluatorFunction.evaluate(a);
                 double valueOfB = super.evaluatorFunction.evaluate(b);
-                return Double.compare(valueOfB, valueOfA);
+                return Double.compare(valueOfA, valueOfB);
             });
 
             double tentativeValue = Double.POSITIVE_INFINITY;
@@ -170,7 +170,7 @@ public final class SortingAlphaBetaPruningGameEngine
             children.sort((a, b) -> {
                 double valueOfA = super.evaluatorFunction.evaluate(a);
                 double valueOfB = super.evaluatorFunction.evaluate(b);
-                return Double.compare(valueOfA, valueOfB);
+                return Double.compare(valueOfB, valueOfA);
             });
 
             double tentativeValue = Double.NEGATIVE_INFINITY;
@@ -201,7 +201,7 @@ public final class SortingAlphaBetaPruningGameEngine
             children.sort((a, b) -> {
                 double valueOfA = super.evaluatorFunction.evaluate(a);
                 double valueOfB = super.evaluatorFunction.evaluate(b);
-                return Double.compare(valueOfB, valueOfA);
+                return Double.compare(valueOfA, valueOfB);
             });
 
             double tentativeValue = Double.POSITIVE_INFINITY;
